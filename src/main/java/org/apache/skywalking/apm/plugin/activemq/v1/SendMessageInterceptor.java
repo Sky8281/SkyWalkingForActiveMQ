@@ -47,11 +47,19 @@ public class SendMessageInterceptor implements InstanceMethodsAroundInterceptor{
 			ActiveMQDestination  destination = (ActiveMQDestination) messageProducer.getDestination();
 			String destinationStr = destination.toString();
 			String activeMQName = destinationStr;
+			if( destinationStr.contains("merchant") || destinationStr.contains("notify-core-merchant-default"))
+				activeMQName = "merchant|core";
+		//	else if(destinationStr.contains("query") && destinationStr.contains("merchant"))
+		//		activeMQName = "query merchant|core";
+			else if(destinationStr.contains("crm"))
+				activeMQName = "crm|core";
+		//	else if(destinationStr.contains("query") && destinationStr.contains("crm"))
+		//		activeMQName = "query crm|core";
 			
 			AbstractSpan	 span = ContextManager.createExitSpan("ActiveMQProduct " + destinationStr, contextCarrier, activeMQName);
 			
 			span.setLayer(SpanLayer.MQ);
-			span.setComponent(ComponentsDefine.ACTIVE_MQ);
+			span.setComponent(new OfficialComponent(10001, "ACTIVE_MQ"));
 	        SpanLayer.asMQ(span);
 			message.setProperty("destination", destinationStr);
 	      

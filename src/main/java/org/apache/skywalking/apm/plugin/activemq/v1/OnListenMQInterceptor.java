@@ -42,19 +42,15 @@ public class OnListenMQInterceptor implements InstanceMethodsAroundInterceptor {
 	    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
 	        MethodInterceptResult result) throws Throwable {
 				ContextCarrier contextCarrier = new ContextCarrier();
-				ActiveMQTextMessage message = (ActiveMQTextMessage)allArguments[0];		
-				//System.out.println("receive" + message);				
+				ActiveMQTextMessage message = (ActiveMQTextMessage)allArguments[0];				
 				CarrierItem next = contextCarrier.items();
 				while (next.hasNext()) {
 				next = next.next();
-					//System.out.println(message.getProperty(next.getHeadKey()));
 					next.setHeadValue((String) message.getProperty(next.getHeadKey()));
 				}
 				AbstractSpan	  span = ContextManager.createEntrySpan("Activemq Revice " + message.getProperty("destination"), contextCarrier );
-				//String destination = message.getDestination().toString();
-				//Tags.MQ_TOPIC.set(span, "receive");
 				span.setLayer(SpanLayer.MQ);
-				span.setComponent(ComponentsDefine.ACTIVE_MQ);
+				span.setComponent(new OfficialComponent(10001, "ACTIVE_MQ"));
 				SpanLayer.asMQ(span);
 		
 	    }
